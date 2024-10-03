@@ -681,6 +681,8 @@ def FUN_proc_name(name):
         name = 'MILLER JOHNSON & KUEHN'
     if name=='MORGAN STANLEY DEAN WITTER':
         name = 'MORGAN STANLEY'
+    if name=='MORGAN STANLEY INTERNATIONAL':
+        name = 'MORGAN STANLEY'
     if name=='CIBC CAPITAL MARKETS':
         name = 'CIBC'
     if name=='NATCITY INVESTMENTS':
@@ -1354,6 +1356,8 @@ def FUN_proc_name(name):
     if name=='CITI BANK':
         name = 'CITIGROUP'
     if name=='CITI':
+        name = 'CITIGROUP'
+    if name=='CITIGROUP GLOBAL MARKETS':
         name = 'CITIGROUP'
     if name=='BANKNORTH':
         name = 'TD BANK'

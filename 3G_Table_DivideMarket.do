@@ -1,7 +1,7 @@
 
-/*------------------------------------*/
-/* Table: Dividing the market further */
-/*------------------------------------*/
+/*-------------------------------------------------------------------------------------------------------*/
+/* Table: Dividing the market further, i.e., whether bond issue lies in the expertise of the underwriter */
+/*-------------------------------------------------------------------------------------------------------*/
 
 import delimited "../CleanData/MAEvent/CSA_episodes_impliedHHIbyN.csv", clear
 
@@ -29,10 +29,11 @@ prog regression_us
 	args begin_year end_year
 	
 	reghdfe gross_spread_inbp ///
-	(treated)##(if_us_expertise) post ///
+	(treated)##(if_us_expertise) ///
 	TXPXif_us_expertise TXPXif_not_us_expertise ///
 	if year_to_merger>=`begin_year'&year_to_merger<=`end_year', /// 
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.bracket_code calendar_year) cluster(csacode calendar_year)
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
 
 end
 
@@ -42,10 +43,11 @@ prog regression_csa
 	args begin_year end_year
 	
 	reghdfe gross_spread_inbp ///
-	(treated)##(if_csa_expertise) post ///
+	(treated)##(if_csa_expertise) ///
 	TXPXif_csa_expertise TXPXif_not_csa_expertise ///
 	if year_to_merger>=`begin_year'&year_to_merger<=`end_year', /// 
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.bracket_code calendar_year) cluster(csacode calendar_year)
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
 
 end
 
@@ -588,7 +590,7 @@ cap drop bracket_code
 /*--------------------------------------*/
 
 post `memhold' (" ") (" ") (" ") (" ") (" ") (" ") (" ") 
-post `memhold' ("Panel C: By the main use of proceeds") (" ") (" ") (" ") (" ") (" ") (" ") 
+post `memhold' ("Panel C: By main use of proceeds") (" ") (" ") (" ") (" ") (" ") (" ") 
 
 gen if_us_expertise = if_us_expert_use_short_5=="True"
 gen TXPXif_us_expertise = treatedXpost*if_us_expertise
@@ -855,7 +857,7 @@ cap drop bracket_code
 /*---------------------------------*/
 
 post `memhold' (" ") (" ") (" ") (" ") (" ") (" ") (" ") 
-post `memhold' ("Panel D: By the method of sales") (" ") (" ") (" ") (" ") (" ") (" ") 
+post `memhold' ("Panel D: By method of sales") (" ") (" ") (" ") (" ") (" ") (" ") 
 
 gen if_us_expertise = if_us_expert_bid_5=="True"
 gen TXPXif_us_expertise = treatedXpost*if_us_expertise
@@ -1122,7 +1124,7 @@ cap drop bracket_code
 /*-------------------------------------------------------*/
 
 post `memhold' (" ") (" ") (" ") (" ") (" ") (" ") (" ") 
-post `memhold' ("Panel E: By whether the bond issue has credit ratings") (" ") (" ") (" ") (" ") (" ") (" ") 
+post `memhold' ("Panel E: By whether bond issue has credit ratings") (" ") (" ") (" ") (" ") (" ") (" ") 
 
 gen if_us_expertise = if_us_expert_has_ratings_5=="True"
 gen TXPXif_us_expertise = treatedXpost*if_us_expertise
@@ -1390,9 +1392,534 @@ cap drop bracket_code
 
 post `memhold' (" ") (" ") (" ") (" ") (" ") (" ") (" ") 
 post `memhold' ("Issuer \(\times\) Cohort FE") ("Yes") ("Yes") ("Yes")  ("Yes") ("Yes") ("Yes")
-post `memhold' ("Year FE") ("Yes") ("Yes") ("Yes")  ("Yes") ("Yes") ("Yes")
+post `memhold' ("Cohort \(\times\) Year FE") ("Yes") ("Yes") ("Yes")  ("Yes") ("Yes") ("Yes")
 post `memhold' ("Clustering") ("CSA \& Year") ("CSA \& Year") ("CSA \& Year")  ("CSA \& Year") ("CSA \& Year") ("CSA \& Year")
-post `memhold' ("Ranking of Underwriters") ("US") ("US") ("US")  ("CSA") ("CSA") ("CSA")
+post `memhold' ("Ranking of Underwriters") ("In U.S.") ("In U.S.") ("In U.S.")  ("Within CSA") ("Within CSA") ("Within CSA")
+
+postclose `memhold'
+use `table', clear
+texsave using "`outfile'", replace dataonly nonames italics("Panel") nofix hlines(4)
+
+
+
+
+
+
+
+
+
+/*------------------------------------------------*/
+/* Table: Divide markets and then identify events */
+/*------------------------------------------------*/
+
+local outfile =  "../Draft/tabs/DID_MA_GrossSpread_submarket_events.tex"
+
+tempfile table
+tempname memhold
+postfile `memhold' str100 varname str30 (coef1 coef2 coef3) using `table', replace
+post `memhold' (" ") ("(1)") ("(2)") ("(3)")
+post `memhold' (" ") ("Underwriting") ("Underwriting") ("Underwriting")
+post `memhold' (" ") ("Spread (bps.)") ("Spread (bps.)") ("Spread (bps.)")
+post `memhold' (" ") ("[-4, +4]") ("[-4, +7]") ("[-4, +10]")
+
+// By amount brackets
+
+post `memhold' (" ") (" ") (" ") (" ")
+post `memhold' ("Panel A: By CSA \(\times\) amount brackets") (" ") (" ") (" ")
+
+import delimited "../CleanData/MAEvent/CSAXamount_bracket_episodes_impliedHHIByN.csv", clear
+
+gen gross_spread_inbp = gross_spread*10
+
+gen post = year_to_merger>=0
+gen treatedXpost = treated*post
+label var treatedXpost "Treated $\times$ Post"
+
+encode issuer, gen(issuer_code)
+
+encode amount_bracket, gen(amount_bracket_coded)
+
+cap prog drop regression
+prog regression
+
+	args begin_year end_year
+	
+	reghdfe gross_spread_inbp treatedXpost ///
+	if year_to_merger>=`begin_year'&year_to_merger<=`end_year', ///
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa##i.amount_bracket_coded ///
+	i.episode_start_year##i.treated_csa##i.amount_bracket_coded##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
+
+end
+
+regression -4 4
+
+local b_coef1 = _b[treatedXpost]
+local t_coef1 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef1 = 2 * ttail(e(df_r), abs(`t_coef1'))
+if `p_coef1' >= 0.10 {
+	local b_coef1 = string(`b_coef1', "%6.2f")
+} 
+else if `p_coef1' < 0.10 & `p_coef1' >= 0.05 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "*"
+} 
+else if `p_coef1' < 0.05 & `p_coef1' >= 0.01 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "**"
+} 
+else if `p_coef1' < 0.01 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "***"
+}
+local t_coef1 = "(" + string(`t_coef1', "%6.2f") + ")"
+local r2_coef1 = string(e(r2_a), "%6.3f")
+local obs_coef1 = string(e(N), "%10.0fc")
+
+regression -4 7
+
+local b_coef2 = _b[treatedXpost]
+local t_coef2 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef2 = 2 * ttail(e(df_r), abs(`t_coef2'))
+if `p_coef2' >= 0.10 {
+	local b_coef2 = string(`b_coef2', "%6.2f")
+} 
+else if `p_coef2' < 0.10 & `p_coef2' >= 0.05 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "*"
+} 
+else if `p_coef2' < 0.05 & `p_coef2' >= 0.01 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "**"
+} 
+else if `p_coef2' < 0.01 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "***"
+}
+local t_coef2 = "(" + string(`t_coef2', "%6.2f") + ")"
+local r2_coef2 = string(e(r2_a), "%6.3f")
+local obs_coef2 = string(e(N), "%10.0fc")
+
+regression -4 10
+
+local b_coef3 = _b[treatedXpost]
+local t_coef3 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef3 = 2 * ttail(e(df_r), abs(`t_coef3'))
+if `p_coef3' >= 0.10 {
+	local b_coef3 = string(`b_coef3', "%6.2f")
+} 
+else if `p_coef3' < 0.10 & `p_coef3' >= 0.05 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "*"
+} 
+else if `p_coef3' < 0.05 & `p_coef3' >= 0.01 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "**"
+} 
+else if `p_coef3' < 0.01 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "***"
+}
+local t_coef3 = "(" + string(`t_coef3', "%6.2f") + ")"
+local r2_coef3 = string(e(r2_a), "%6.3f")
+local obs_coef3 = string(e(N), "%10.0fc")
+
+post `memhold' ("Treated $\times$ Post") ("`b_coef1'") ("`b_coef2'") ("`b_coef3'")
+post `memhold' ("\;") ("`t_coef1'") ("`t_coef2'") ("`t_coef3'")
+post `memhold' ("Observations") ("`obs_coef1'") ("`obs_coef2'") ("`obs_coef3'")
+post `memhold' ("Adjusted R-squared") ("`r2_coef1'") ("`r2_coef2'") ("`r2_coef3'")
+
+// By maturity brackets
+
+post `memhold' (" ") (" ") (" ") (" ")
+post `memhold' ("Panel B: By CSA \(\times\) maturity brackets") (" ") (" ") (" ")
+
+import delimited "../CleanData/MAEvent/CSAXmat_bracket_episodes_impliedHHIByN.csv", clear
+
+gen gross_spread_inbp = gross_spread*10
+
+gen post = year_to_merger>=0
+gen treatedXpost = treated*post
+label var treatedXpost "Treated $\times$ Post"
+
+encode issuer, gen(issuer_code)
+
+encode mat_bracket, gen(mat_bracket_coded)
+
+cap prog drop regression
+prog regression
+
+	args begin_year end_year
+	
+	reghdfe gross_spread_inbp treatedXpost ///
+	if year_to_merger>=`begin_year'&year_to_merger<=`end_year', ///
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa##i.mat_bracket_coded ///
+	i.episode_start_year##i.treated_csa##i.mat_bracket_coded##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
+
+end
+
+regression -4 4
+
+local b_coef1 = _b[treatedXpost]
+local t_coef1 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef1 = 2 * ttail(e(df_r), abs(`t_coef1'))
+if `p_coef1' >= 0.10 {
+	local b_coef1 = string(`b_coef1', "%6.2f")
+} 
+else if `p_coef1' < 0.10 & `p_coef1' >= 0.05 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "*"
+} 
+else if `p_coef1' < 0.05 & `p_coef1' >= 0.01 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "**"
+} 
+else if `p_coef1' < 0.01 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "***"
+}
+local t_coef1 = "(" + string(`t_coef1', "%6.2f") + ")"
+local r2_coef1 = string(e(r2_a), "%6.3f")
+local obs_coef1 = string(e(N), "%10.0fc")
+
+regression -4 7
+
+local b_coef2 = _b[treatedXpost]
+local t_coef2 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef2 = 2 * ttail(e(df_r), abs(`t_coef2'))
+if `p_coef2' >= 0.10 {
+	local b_coef2 = string(`b_coef2', "%6.2f")
+} 
+else if `p_coef2' < 0.10 & `p_coef2' >= 0.05 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "*"
+} 
+else if `p_coef2' < 0.05 & `p_coef2' >= 0.01 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "**"
+} 
+else if `p_coef2' < 0.01 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "***"
+}
+local t_coef2 = "(" + string(`t_coef2', "%6.2f") + ")"
+local r2_coef2 = string(e(r2_a), "%6.3f")
+local obs_coef2 = string(e(N), "%10.0fc")
+
+regression -4 10
+
+local b_coef3 = _b[treatedXpost]
+local t_coef3 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef3 = 2 * ttail(e(df_r), abs(`t_coef3'))
+if `p_coef3' >= 0.10 {
+	local b_coef3 = string(`b_coef3', "%6.2f")
+} 
+else if `p_coef3' < 0.10 & `p_coef3' >= 0.05 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "*"
+} 
+else if `p_coef3' < 0.05 & `p_coef3' >= 0.01 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "**"
+} 
+else if `p_coef3' < 0.01 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "***"
+}
+local t_coef3 = "(" + string(`t_coef3', "%6.2f") + ")"
+local r2_coef3 = string(e(r2_a), "%6.3f")
+local obs_coef3 = string(e(N), "%10.0fc")
+
+post `memhold' ("Treated $\times$ Post") ("`b_coef1'") ("`b_coef2'") ("`b_coef3'")
+post `memhold' ("\;") ("`t_coef1'") ("`t_coef2'") ("`t_coef3'")
+post `memhold' ("Observations") ("`obs_coef1'") ("`obs_coef2'") ("`obs_coef3'")
+post `memhold' ("Adjusted R-squared") ("`r2_coef1'") ("`r2_coef2'") ("`r2_coef3'")
+
+// By main use of proceeds
+
+post `memhold' (" ") (" ") (" ") (" ")
+post `memhold' ("Panel C: By CSA \(\times\) main use of proceeds") (" ") (" ") (" ")
+
+import delimited "../CleanData/MAEvent/CSAXuse_short_episodes_impliedHHIByN.csv", clear
+
+gen gross_spread_inbp = gross_spread*10
+
+gen post = year_to_merger>=0
+gen treatedXpost = treated*post
+label var treatedXpost "Treated $\times$ Post"
+
+encode issuer, gen(issuer_code)
+
+encode use_short, gen(use_short_coded)
+
+cap prog drop regression
+prog regression
+
+	args begin_year end_year
+	
+	reghdfe gross_spread_inbp treatedXpost ///
+	if year_to_merger>=`begin_year'&year_to_merger<=`end_year', ///
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa##i.use_short_coded ///
+	i.episode_start_year##i.treated_csa##i.use_short_coded##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
+
+end
+
+regression -4 4
+
+local b_coef1 = _b[treatedXpost]
+local t_coef1 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef1 = 2 * ttail(e(df_r), abs(`t_coef1'))
+if `p_coef1' >= 0.10 {
+	local b_coef1 = string(`b_coef1', "%6.2f")
+} 
+else if `p_coef1' < 0.10 & `p_coef1' >= 0.05 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "*"
+} 
+else if `p_coef1' < 0.05 & `p_coef1' >= 0.01 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "**"
+} 
+else if `p_coef1' < 0.01 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "***"
+}
+local t_coef1 = "(" + string(`t_coef1', "%6.2f") + ")"
+local r2_coef1 = string(e(r2_a), "%6.3f")
+local obs_coef1 = string(e(N), "%10.0fc")
+
+regression -4 7
+
+local b_coef2 = _b[treatedXpost]
+local t_coef2 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef2 = 2 * ttail(e(df_r), abs(`t_coef2'))
+if `p_coef2' >= 0.10 {
+	local b_coef2 = string(`b_coef2', "%6.2f")
+} 
+else if `p_coef2' < 0.10 & `p_coef2' >= 0.05 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "*"
+} 
+else if `p_coef2' < 0.05 & `p_coef2' >= 0.01 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "**"
+} 
+else if `p_coef2' < 0.01 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "***"
+}
+local t_coef2 = "(" + string(`t_coef2', "%6.2f") + ")"
+local r2_coef2 = string(e(r2_a), "%6.3f")
+local obs_coef2 = string(e(N), "%10.0fc")
+
+regression -4 10
+
+local b_coef3 = _b[treatedXpost]
+local t_coef3 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef3 = 2 * ttail(e(df_r), abs(`t_coef3'))
+if `p_coef3' >= 0.10 {
+	local b_coef3 = string(`b_coef3', "%6.2f")
+} 
+else if `p_coef3' < 0.10 & `p_coef3' >= 0.05 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "*"
+} 
+else if `p_coef3' < 0.05 & `p_coef3' >= 0.01 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "**"
+} 
+else if `p_coef3' < 0.01 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "***"
+}
+local t_coef3 = "(" + string(`t_coef3', "%6.2f") + ")"
+local r2_coef3 = string(e(r2_a), "%6.3f")
+local obs_coef3 = string(e(N), "%10.0fc")
+
+post `memhold' ("Treated $\times$ Post") ("`b_coef1'") ("`b_coef2'") ("`b_coef3'")
+post `memhold' ("\;") ("`t_coef1'") ("`t_coef2'") ("`t_coef3'")
+post `memhold' ("Observations") ("`obs_coef1'") ("`obs_coef2'") ("`obs_coef3'")
+post `memhold' ("Adjusted R-squared") ("`r2_coef1'") ("`r2_coef2'") ("`r2_coef3'")
+
+// By method of sales
+
+post `memhold' (" ") (" ") (" ") (" ")
+post `memhold' ("Panel D: By CSA \(\times\) method of sales") (" ") (" ") (" ")
+
+import delimited "../CleanData/MAEvent/CSAXBid_episodes_impliedHHIByN.csv", clear
+
+gen gross_spread_inbp = gross_spread*10
+
+gen post = year_to_merger>=0
+gen treatedXpost = treated*post
+label var treatedXpost "Treated $\times$ Post"
+
+encode issuer, gen(issuer_code)
+
+encode bid, gen(bid_coded)
+
+cap prog drop regression
+prog regression
+
+	args begin_year end_year
+	
+	reghdfe gross_spread_inbp treatedXpost ///
+	if year_to_merger>=`begin_year'&year_to_merger<=`end_year', ///
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa##i.bid_coded ///
+	i.episode_start_year##i.treated_csa##i.bid_coded##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
+
+end
+
+regression -4 4
+
+local b_coef1 = _b[treatedXpost]
+local t_coef1 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef1 = 2 * ttail(e(df_r), abs(`t_coef1'))
+if `p_coef1' >= 0.10 {
+	local b_coef1 = string(`b_coef1', "%6.2f")
+} 
+else if `p_coef1' < 0.10 & `p_coef1' >= 0.05 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "*"
+} 
+else if `p_coef1' < 0.05 & `p_coef1' >= 0.01 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "**"
+} 
+else if `p_coef1' < 0.01 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "***"
+}
+local t_coef1 = "(" + string(`t_coef1', "%6.2f") + ")"
+local r2_coef1 = string(e(r2_a), "%6.3f")
+local obs_coef1 = string(e(N), "%10.0fc")
+
+regression -4 7
+
+local b_coef2 = _b[treatedXpost]
+local t_coef2 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef2 = 2 * ttail(e(df_r), abs(`t_coef2'))
+if `p_coef2' >= 0.10 {
+	local b_coef2 = string(`b_coef2', "%6.2f")
+} 
+else if `p_coef2' < 0.10 & `p_coef2' >= 0.05 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "*"
+} 
+else if `p_coef2' < 0.05 & `p_coef2' >= 0.01 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "**"
+} 
+else if `p_coef2' < 0.01 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "***"
+}
+local t_coef2 = "(" + string(`t_coef2', "%6.2f") + ")"
+local r2_coef2 = string(e(r2_a), "%6.3f")
+local obs_coef2 = string(e(N), "%10.0fc")
+
+regression -4 10
+
+local b_coef3 = _b[treatedXpost]
+local t_coef3 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef3 = 2 * ttail(e(df_r), abs(`t_coef3'))
+if `p_coef3' >= 0.10 {
+	local b_coef3 = string(`b_coef3', "%6.2f")
+} 
+else if `p_coef3' < 0.10 & `p_coef3' >= 0.05 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "*"
+} 
+else if `p_coef3' < 0.05 & `p_coef3' >= 0.01 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "**"
+} 
+else if `p_coef3' < 0.01 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "***"
+}
+local t_coef3 = "(" + string(`t_coef3', "%6.2f") + ")"
+local r2_coef3 = string(e(r2_a), "%6.3f")
+local obs_coef3 = string(e(N), "%10.0fc")
+
+post `memhold' ("Treated $\times$ Post") ("`b_coef1'") ("`b_coef2'") ("`b_coef3'")
+post `memhold' ("\;") ("`t_coef1'") ("`t_coef2'") ("`t_coef3'")
+post `memhold' ("Observations") ("`obs_coef1'") ("`obs_coef2'") ("`obs_coef3'")
+post `memhold' ("Adjusted R-squared") ("`r2_coef1'") ("`r2_coef2'") ("`r2_coef3'")
+
+// By whether bond issue has credit ratings
+
+post `memhold' (" ") (" ") (" ") (" ")
+post `memhold' ("Panel E: By CSA \(\times\) whether bond issue has credit ratings") (" ") (" ") (" ")
+
+import delimited "../CleanData/MAEvent/CSAXhas_ratings_episodes_impliedHHIByN.csv", clear
+
+gen gross_spread_inbp = gross_spread*10
+
+gen post = year_to_merger>=0
+gen treatedXpost = treated*post
+label var treatedXpost "Treated $\times$ Post"
+
+encode issuer, gen(issuer_code)
+
+encode has_ratings, gen(has_ratings_coded)
+
+cap prog drop regression
+prog regression
+
+	args begin_year end_year
+	
+	reghdfe gross_spread_inbp treatedXpost ///
+	if year_to_merger>=`begin_year'&year_to_merger<=`end_year', ///
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa##i.has_ratings_coded ///
+	i.episode_start_year##i.treated_csa##i.has_ratings_coded##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
+
+end
+
+regression -4 4
+
+local b_coef1 = _b[treatedXpost]
+local t_coef1 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef1 = 2 * ttail(e(df_r), abs(`t_coef1'))
+if `p_coef1' >= 0.10 {
+	local b_coef1 = string(`b_coef1', "%6.2f")
+} 
+else if `p_coef1' < 0.10 & `p_coef1' >= 0.05 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "*"
+} 
+else if `p_coef1' < 0.05 & `p_coef1' >= 0.01 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "**"
+} 
+else if `p_coef1' < 0.01 {
+	local b_coef1 = string(`b_coef1', "%6.2f") + "***"
+}
+local t_coef1 = "(" + string(`t_coef1', "%6.2f") + ")"
+local r2_coef1 = string(e(r2_a), "%6.3f")
+local obs_coef1 = string(e(N), "%10.0fc")
+
+regression -4 7
+
+local b_coef2 = _b[treatedXpost]
+local t_coef2 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef2 = 2 * ttail(e(df_r), abs(`t_coef2'))
+if `p_coef2' >= 0.10 {
+	local b_coef2 = string(`b_coef2', "%6.2f")
+} 
+else if `p_coef2' < 0.10 & `p_coef2' >= 0.05 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "*"
+} 
+else if `p_coef2' < 0.05 & `p_coef2' >= 0.01 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "**"
+} 
+else if `p_coef2' < 0.01 {
+	local b_coef2 = string(`b_coef2', "%6.2f") + "***"
+}
+local t_coef2 = "(" + string(`t_coef2', "%6.2f") + ")"
+local r2_coef2 = string(e(r2_a), "%6.3f")
+local obs_coef2 = string(e(N), "%10.0fc")
+
+regression -4 10
+
+local b_coef3 = _b[treatedXpost]
+local t_coef3 = _b[treatedXpost]/_se[treatedXpost]
+local p_coef3 = 2 * ttail(e(df_r), abs(`t_coef3'))
+if `p_coef3' >= 0.10 {
+	local b_coef3 = string(`b_coef3', "%6.2f")
+} 
+else if `p_coef3' < 0.10 & `p_coef3' >= 0.05 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "*"
+} 
+else if `p_coef3' < 0.05 & `p_coef3' >= 0.01 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "**"
+} 
+else if `p_coef3' < 0.01 {
+	local b_coef3 = string(`b_coef3', "%6.2f") + "***"
+}
+local t_coef3 = "(" + string(`t_coef3', "%6.2f") + ")"
+local r2_coef3 = string(e(r2_a), "%6.3f")
+local obs_coef3 = string(e(N), "%10.0fc")
+
+post `memhold' ("Treated $\times$ Post") ("`b_coef1'") ("`b_coef2'") ("`b_coef3'")
+post `memhold' ("\;") ("`t_coef1'") ("`t_coef2'") ("`t_coef3'")
+post `memhold' ("Observations") ("`obs_coef1'") ("`obs_coef2'") ("`obs_coef3'")
+post `memhold' ("Adjusted R-squared") ("`r2_coef1'") ("`r2_coef2'") ("`r2_coef3'")
+
+/*--------------*/
+/* Export table */
+/*--------------*/
+
+post `memhold' (" ") (" ") (" ") (" ")
+post `memhold' ("Issuer \(\times\) Cohort FE") ("Yes") ("Yes") ("Yes")
+post `memhold' ("Cohort \(\times\) Year FE") ("Yes") ("Yes") ("Yes")
+post `memhold' ("Clustering") ("CSA \& Year") ("CSA \& Year") ("CSA \& Year")
 
 postclose `memhold'
 use `table', clear

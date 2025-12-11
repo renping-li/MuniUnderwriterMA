@@ -61,10 +61,11 @@ gen treatedXpost4XC = treated==1&year_to_merger==4&bid=="C"
 
 preserve
 
-reghdfe avg_yield_inbbps treated post ///
+reghdfe avg_yield_inbbps ///
 treatedXpostm2 treatedXpostm3 treatedXpostm4 treatedXpost0 treatedXpost1 treatedXpost2 treatedXpost3 treatedXpost4 ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 forvalues x = 2/4 {
 local bm`x'= _b[treatedXpostm`x']
@@ -125,10 +126,11 @@ restore
 
 preserve
 
-reghdfe treasury_avg_spread_inbp treated post ///
+reghdfe treasury_avg_spread_inbp ///
 treatedXpostm2 treatedXpostm3 treatedXpostm4 treatedXpost0 treatedXpost1 treatedXpost2 treatedXpost3 treatedXpost4 ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 forvalues x = 2/4 {
 local bm`x'= _b[treatedXpostm`x']
@@ -189,10 +191,11 @@ restore
 
 preserve
 
-reghdfe mma_avg_spread_inbp treated post ///
+reghdfe mma_avg_spread_inbp ///
 treatedXpostm2 treatedXpostm3 treatedXpostm4 treatedXpost0 treatedXpost1 treatedXpost2 treatedXpost3 treatedXpost4 ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 forvalues x = 2/4 {
 local bm`x'= _b[treatedXpostm`x']
@@ -253,10 +256,11 @@ restore
 
 preserve
 
-reghdfe underpricing_15to30 treated post ///
+reghdfe underpricing_15to30 ///
 treatedXpostm2 treatedXpostm3 treatedXpostm4 treatedXpost0 treatedXpost1 treatedXpost2 treatedXpost3 treatedXpost4 ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 forvalues x = 2/4 {
 local bm`x'= _b[treatedXpostm`x']
@@ -325,7 +329,8 @@ treatedXpostm2XC treatedXpostm3XC treatedXpostm4XC treatedXpost0XC treatedXpost1
 treatedXpostm2XP treatedXpostm3XP treatedXpostm4XP treatedXpost0XP treatedXpost1XP treatedXpost2XP treatedXpost3XP treatedXpost4XP ///
 treatedXpostm2XN treatedXpostm3XN treatedXpostm4XN treatedXpost0XN treatedXpost1XN treatedXpost2XN treatedXpost3XN treatedXpost4XN ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 forvalues x = 2/4 {
 local bm`x'= _b[treatedXpostm`x'XC]
@@ -389,7 +394,8 @@ treatedXpostm2XC treatedXpostm3XC treatedXpostm4XC treatedXpost0XC treatedXpost1
 treatedXpostm2XP treatedXpostm3XP treatedXpostm4XP treatedXpost0XP treatedXpost1XP treatedXpost2XP treatedXpost3XP treatedXpost4XP ///
 treatedXpostm2XN treatedXpostm3XN treatedXpostm4XN treatedXpost0XN treatedXpost1XN treatedXpost2XN treatedXpost3XN treatedXpost4XN ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 forvalues x = 2/4 {
 local bm`x'= _b[treatedXpostm`x'XN]

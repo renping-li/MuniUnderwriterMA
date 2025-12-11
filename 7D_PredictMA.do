@@ -40,7 +40,7 @@ label var csa_pop_growth "Population Growth Rate"
 label var csa_inc "Income"
 label var csa_inc_growth "Income Growth Rate"
 label var csa_age "Age"
-label var csa_is_minority "Minority Ratio"
+label var csa_is_minority "Minority Share"
 label var csa_amount_percap "Past Issuance Per Capita"
 
 local outputoptions = "nor2 dec(4) stats(coef tstat) tdec(2) nonotes adec(3)"
@@ -50,9 +50,9 @@ reghdfe hhi_dif csa_hhi_piror csa_pop csa_pop_growth csa_inc csa_inc_growth csa_
 absorb(year) cluster(csacode year)
 
 outreg2 using  "`outfile'", tex(fragment) replace label ///
-keep(csa_hhi_piror csa_pop csa_pop_growth csa_inc csa_inc_growth csa_age csa_is_minority csa_amount_percap) ///
+keep(csa_hhi_piror csa_pop csa_pop_growth csa_inc csa_inc_growth csa_age csa_is_minority csa_amount_percap) nocons ///
 `outputoptions' ctitle("$\;Predicted\;$","$\Delta_{\text{HHI}}$") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","CSA $\times$ Cohort FE","\;","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE","No","Cohort $\times$ Year FE", "No","Clustering","CSA \& Year")
 
 /*--- Number: Effects of population growth rate ---*/
 
@@ -85,10 +85,31 @@ reghdfe hhi_dif_above100 csa_hhi_piror csa_pop csa_pop_growth csa_inc csa_inc_gr
 absorb(year) cluster(csacode year)
 
 outreg2 using  "`outfile'", tex(fragment) append label ///
-keep(csa_hhi_piror csa_pop csa_pop_growth csa_inc csa_inc_growth csa_age csa_is_minority csa_amount_percap) ///
+keep(csa_hhi_piror csa_pop csa_pop_growth csa_inc csa_inc_growth csa_age csa_is_minority csa_amount_percap) nocons ///
 `outputoptions' ctitle("$1_{Predicted\;\Delta_{\text{HHI}}\ge100}$","$\times100$") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","CSA $\times$ Cohort FE","\;","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE","No","Cohort $\times$ Year FE", "No","Clustering","CSA \& Year")
 
+/*--- Number: Effects of population growth rate ---*/
+
+local csa_pop_growth_effects = _b[csa_pop_growth]/100
+local csa_pop_growth_effects : display %-9.2f `csa_pop_growth_effects'
+file open myfile using "../Draft/nums/PredictMAIndicator_csa_pop_growth_effects.tex", write replace
+file write myfile "`csa_pop_growth_effects'"
+file close myfile
+
+/*--- Number: Effects of prior HHI ---*/
+
+local csa_hhi_piror_effects = _b[csa_hhi_piror]*100
+local csa_hhi_piror_effects : display %-9.2f `csa_hhi_piror_effects'
+file open myfile using "../Draft/nums/PredictMAIndicator_csa_hhi_piror_effects.tex", write replace
+file write myfile "`csa_hhi_piror_effects'"
+file close myfile
+
+local csa_hhi_piror_effects = -_b[csa_hhi_piror]*100
+local csa_hhi_piror_effects : display %-9.2f `csa_hhi_piror_effects'
+file open myfile using "../Draft/nums/PredictMAIndicator_csa_hhi_piror_effects_opp.tex", write replace
+file write myfile "`csa_hhi_piror_effects'"
+file close myfile
 
 
 /* Part 2: Do effects hold controlling for those? */
@@ -113,26 +134,28 @@ label var treatedXpost "Treated $\times$ Post"
 encode issuer, gen(issuer_code)
 
 // Column 3: Control for variables that significantly affects Delta HHI
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 csa_hhi_piror csa_pop_growth ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label ///
-keep(treatedXpost csa_hhi_piror csa_pop_growth) ///
+keep(treatedXpost csa_hhi_piror csa_pop_growth) nocons ///
  `outputoptions' ctitle("Underwriting","Spread (bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","CSA $\times$ Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "No","Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year")
 
 // Column 4: Control for all variables
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 csa_hhi_piror csa_pop csa_pop_growth csa_inc csa_inc_growth csa_age csa_is_minority csa_amount_percap ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label ///
-keep(treatedXpost csa_hhi_piror csa_pop csa_pop_growth csa_inc csa_inc_growth csa_age csa_is_minority csa_amount_percap) ///
+keep(treatedXpost csa_hhi_piror csa_pop csa_pop_growth csa_inc csa_inc_growth csa_age csa_is_minority csa_amount_percap) nocons ///
 `outputoptions' ctitle("Underwriting","Spread (bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","CSA $\times$ Cohort FE", "Yes","Clustering","CSA \& Year") ///
+addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "No","Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year") ///
 sortvar(treatedXpost csa_hhi_piror csa_pop csa_pop_growth csa_inc csa_inc_growth csa_age csa_is_minority csa_amount_percap)
 
 

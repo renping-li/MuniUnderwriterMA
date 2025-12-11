@@ -7,10 +7,10 @@ local outfile =  "../Draft/tabs/DID_MA_GrossSpread_main.tex"
 
 tempfile table
 tempname memhold
-postfile `memhold' str100 varname str30 (coef1 coef2 coef3 coef4 coef5 coef6) using `table', replace
-post `memhold' (" ") ("(1)") ("(2)") ("(3)") ("(4)") ("(5)") ("(6)")
-post `memhold' (" ") ("Underwriting") ("Underwriting") ("Underwriting") ("Underwriting") ("Underwriting") ("Underwriting")
-post `memhold' (" ") ("Spread (bps.)") ("Spread (bps.)") ("Spread (bps.)") ("Spread (bps.)") ("Spread (bps.)") ("Spread (bps.)")
+postfile `memhold' str100 varname str30 (coef1 coef2 coef3 coef4) using `table', replace
+post `memhold' (" ") ("(1)") ("(2)") ("(3)") ("(4)")
+post `memhold' (" ") ("Underwriting") ("Underwriting") ("Underwriting") ("Underwriting")
+post `memhold' (" ") ("Spread (bps.)") ("Spread (bps.)") ("Spread (bps.)") ("Spread (bps.)")
 
 foreach panelname in "m4to4" "m4to7" "m4to10" {
 	
@@ -45,9 +45,10 @@ foreach panelname in "m4to4" "m4to7" "m4to10" {
 	encode issuer, gen(issuer_code)
 
 	// Column 1: Using implied HHI increase > 0.01
-	reghdfe gross_spread_inbp treated post treatedXpost ///
+	reghdfe gross_spread_inbp treatedXpost ///
 	if year_to_merger>=`begin_year'&year_to_merger<=`end_year', ///
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
 
 	local b_coef1 = _b[treatedXpost]
 	local t_coef1 = _b[treatedXpost]/_se[treatedXpost]
@@ -81,9 +82,10 @@ foreach panelname in "m4to4" "m4to7" "m4to10" {
 	encode issuer, gen(issuer_code)
 
 	// Column 2: Using implied HHI increase > 0.01
-	reghdfe gross_spread_inbp treated post treatedXpost ///
+	reghdfe gross_spread_inbp treatedXpost ///
 	if year_to_merger>=`begin_year'&year_to_merger<=`end_year', ///
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_cbsa calendar_year) cluster(cbsacode calendar_year)
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_cbsa i.episode_start_year##i.treated_cbsa##i.calendar_year) ///
+	cluster(cbsacode calendar_year) noconstant
 
 	local b_coef2 = _b[treatedXpost]
 	local t_coef2 = _b[treatedXpost]/_se[treatedXpost]
@@ -106,7 +108,7 @@ foreach panelname in "m4to4" "m4to7" "m4to10" {
 
 	/* Column 3 */
 
-	import delimited "../CleanData/MAEvent/CSA_episodes_marketsharebyN.csv", clear 
+	import delimited "../CleanData/MAEvent/CSA_episodes_top5shareByN.csv", clear 
 
 	gen gross_spread_inbp = gross_spread*10
 
@@ -116,10 +118,11 @@ foreach panelname in "m4to4" "m4to7" "m4to10" {
 
 	encode issuer, gen(issuer_code)
 
-	// Column 3: Using market share of target and acquiror > 0.05
-	reghdfe gross_spread_inbp treated post treatedXpost ///
+	// Column 3: Using rise in top 5 share > 0.05
+	reghdfe gross_spread_inbp treatedXpost ///
 	if year_to_merger>=`begin_year'&year_to_merger<=`end_year', ///
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
 
 	local b_coef3 = _b[treatedXpost]
 	local t_coef3 = _b[treatedXpost]/_se[treatedXpost]
@@ -142,7 +145,7 @@ foreach panelname in "m4to4" "m4to7" "m4to10" {
 
 	/* Column 4 */
 
-	import delimited "../CleanData/MAEvent/CBSA_episodes_marketsharebyN.csv", clear 
+	import delimited "../CleanData/MAEvent/CBSA_episodes_top5shareByN.csv", clear 
 
 	gen gross_spread_inbp = gross_spread*10
 
@@ -152,10 +155,11 @@ foreach panelname in "m4to4" "m4to7" "m4to10" {
 
 	encode issuer, gen(issuer_code)
 
-	// Column 4: Using market share of target and acquiror > 0.05
-	reghdfe gross_spread_inbp treated post treatedXpost ///
+	// Column 4: Using rise in top 5 share > 0.05
+	reghdfe gross_spread_inbp treatedXpost ///
 	if year_to_merger>=`begin_year'&year_to_merger<=`end_year', ///
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_cbsa calendar_year) cluster(cbsacode calendar_year)
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_cbsa i.episode_start_year##i.treated_cbsa##i.calendar_year) ///
+	cluster(cbsacode calendar_year) noconstant
 
 	local b_coef4 = _b[treatedXpost]
 	local t_coef4 = _b[treatedXpost]/_se[treatedXpost]
@@ -176,91 +180,19 @@ foreach panelname in "m4to4" "m4to7" "m4to10" {
 	local r2_coef4 = string(e(r2_a), "%6.3f")
 	local obs_coef4 = string(e(N), "%10.0fc")
 
-	/* Column 5 */
-
-	import delimited "../CleanData/MAEvent/CSA_episodes_top5shareByN.csv", clear 
-
-	gen gross_spread_inbp = gross_spread*10
-
-	gen post = year_to_merger>=0
-	gen treatedXpost = treated*post
-	label var treatedXpost "Treated $\times$ Post"
-
-	encode issuer, gen(issuer_code)
-
-	// Column 5: Using rise in top 5 share > 0.05
-	reghdfe gross_spread_inbp treated post treatedXpost ///
-	if year_to_merger>=`begin_year'&year_to_merger<=`end_year', ///
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
-
-	local b_coef5 = _b[treatedXpost]
-	local t_coef5 = _b[treatedXpost]/_se[treatedXpost]
-	local p_coef5 = 2 * ttail(e(df_r), abs(`t_coef5'))
-	if `p_coef5' >= 0.10 {
-		local b_coef5 = string(`b_coef5', "%6.2f")
-	} 
-	else if `p_coef5' < 0.10 & `p_coef5' >= 0.05 {
-		local b_coef5 = string(`b_coef5', "%6.2f") + "*"
-	} 
-	else if `p_coef5' < 0.05 & `p_coef5' >= 0.01 {
-		local b_coef5 = string(`b_coef5', "%6.2f") + "**"
-	} 
-	else if `p_coef5' < 0.01 {
-		local b_coef5 = string(`b_coef5', "%6.2f") + "***"
-	}
-	local t_coef5 = "(" + string(`t_coef5', "%6.2f") + ")"
-	local r2_coef5 = string(e(r2_a), "%6.3f")
-	local obs_coef5 = string(e(N), "%10.0fc")
-
-	/* Column 6 */
-
-	import delimited "../CleanData/MAEvent/CBSA_episodes_top5shareByN.csv", clear 
-
-	gen gross_spread_inbp = gross_spread*10
-
-	gen post = year_to_merger>=0
-	gen treatedXpost = treated*post
-	label var treatedXpost "Treated $\times$ Post"
-
-	encode issuer, gen(issuer_code)
-
-	// Column 6: Using rise in top 5 share > 0.05
-	reghdfe gross_spread_inbp treated post treatedXpost ///
-	if year_to_merger>=`begin_year'&year_to_merger<=`end_year', ///
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_cbsa calendar_year) cluster(cbsacode calendar_year)
-
-	local b_coef6 = _b[treatedXpost]
-	local t_coef6 = _b[treatedXpost]/_se[treatedXpost]
-	local p_coef6 = 2 * ttail(e(df_r), abs(`t_coef6'))
-	if `p_coef6' >= 0.10 {
-		local b_coef6 = string(`b_coef6', "%6.2f")
-	} 
-	else if `p_coef6' < 0.10 & `p_coef6' >= 0.05 {
-		local b_coef6 = string(`b_coef6', "%6.2f") + "*"
-	} 
-	else if `p_coef6' < 0.05 & `p_coef6' >= 0.01 {
-		local b_coef6 = string(`b_coef6', "%6.2f") + "**"
-	} 
-	else if `p_coef6' < 0.01 {
-		local b_coef6 = string(`b_coef6', "%6.2f") + "***"
-	}
-	local t_coef6 = "(" + string(`t_coef6', "%6.2f") + ")"
-	local r2_coef6 = string(e(r2_a), "%6.3f")
-	local obs_coef6 = string(e(N), "%10.0fc")
-
-	post `memhold' (" ") (" ") (" ") (" ") (" ") (" ") (" ")
-	post `memhold' ("`paneltitle'") (" ") (" ") (" ") (" ") (" ") (" ")
-	post `memhold' ("Treated $\times$ Post") ("`b_coef1'") ("`b_coef2'") ("`b_coef3'") ("`b_coef4'") ("`b_coef5'") ("`b_coef6'")
-	post `memhold' (" ") ("`t_coef1'") ("`t_coef2'") ("`t_coef3'") ("`t_coef4'") ("`t_coef5'") ("`t_coef6'")
-	post `memhold' ("Observations") ("`obs_coef1'") ("`obs_coef2'") ("`obs_coef3'") ("`obs_coef4'") ("`obs_coef5'") ("`obs_coef6'")
-	post `memhold' ("Adjusted R-squared") ("`r2_coef1'") ("`r2_coef2'") ("`r2_coef3'") ("`r2_coef4'") ("`r2_coef5'") ("`r2_coef6'")
+	post `memhold' (" ") (" ") (" ") (" ") (" ")
+	post `memhold' ("`paneltitle'") (" ") (" ") (" ") (" ")
+	post `memhold' ("Treated $\times$ Post") ("`b_coef1'") ("`b_coef2'") ("`b_coef3'") ("`b_coef4'")
+	post `memhold' (" ") ("`t_coef1'") ("`t_coef2'") ("`t_coef3'") ("`t_coef4'")
+	post `memhold' ("Observations") ("`obs_coef1'") ("`obs_coef2'") ("`obs_coef3'") ("`obs_coef4'")
+	post `memhold' ("Adjusted R-squared") ("`r2_coef1'") ("`r2_coef2'") ("`r2_coef3'") ("`r2_coef4'")
 
 }
 
-post `memhold' (" ") (" ") (" ") (" ") (" ") (" ") (" ")
-post `memhold' ("Issuer \(\times\) Cohort FE") ("Yes") ("Yes") ("Yes") ("Yes") ("Yes") ("Yes")
-post `memhold' ("Year FE") ("Yes") ("Yes") ("Yes") ("Yes") ("Yes") ("Yes")
-post `memhold' ("Clustering") ("CSA \& Year") ("CBSA \& Year") ("CSA \& Year") ("CBSA \& Year") ("CSA \& Year") ("CBSA \& Year")
+post `memhold' (" ") (" ") (" ") (" ") (" ")
+post `memhold' ("Issuer \(\times\) Cohort FE") ("Yes") ("Yes") ("Yes") ("Yes")
+post `memhold' ("Cohort \(\times\) Year FE") ("Yes") ("Yes") ("Yes") ("Yes")
+post `memhold' ("Clustering") ("CSA \& Year") ("CBSA \& Year") ("CSA \& Year") ("CBSA \& Year")
 
 postclose `memhold'
 use `table', clear
@@ -290,12 +222,13 @@ label var treatedXpost "Treated $\times$ Post"
 encode issuer, gen(issuer_code)
 
 // Column 1: Using implied HHI increase > 0.01
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) replace label keep(treatedXpost) `outputoptions' ctitle("Underwriting","Spread (bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer \(\times\) Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Cohort \(\times\) Year FE", "Yes","Issuer \(\times\) Cohort FE", "Yes","Clustering","CSA \& Year")
 
 /* Column 2 */
 
@@ -310,12 +243,13 @@ label var treatedXpost "Treated $\times$ Post"
 encode issuer, gen(issuer_code)
 
 // Column 2: Using market share of target and acquiror > 0.05
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label keep(treatedXpost) `outputoptions' ctitle("Underwriting","Spread (bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer \(\times\) Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Cohort \(\times\) Year FE", "Yes","Issuer \(\times\) Cohort FE", "Yes","Clustering","CSA \& Year")
 
 /* Column 3 */
 
@@ -330,12 +264,13 @@ label var treatedXpost "Treated $\times$ Post"
 encode issuer, gen(issuer_code)
 
 // Column 3: Using rise in top 5 share > 0.05
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label keep(treatedXpost) `outputoptions' ctitle("Underwriting","Spread (bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer \(\times\) Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Cohort \(\times\) Year FE", "Yes","Issuer \(\times\) Cohort FE", "Yes","Clustering","CSA \& Year")
 
 }
 
@@ -364,12 +299,13 @@ label var treatedXpost "Treated $\times$ Post"
 encode issuer, gen(issuer_code)
 
 // Column 1: Using implied HHI increase > 0.01
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_cbsa calendar_year) cluster(cbsacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_cbsa i.episode_start_year##i.treated_cbsa##i.calendar_year) ///
+cluster(cbsacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) replace label keep(treatedXpost) `outputoptions' ctitle("Underwriting","Spread (bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer \(\times\) Cohort FE", "Yes","Clustering","CBSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Cohort \(\times\) Year FE", "Yes","Issuer \(\times\) Cohort FE", "Yes","Clustering","CBSA \& Year")
 
 /* Column 2 */
 
@@ -384,12 +320,13 @@ label var treatedXpost "Treated $\times$ Post"
 encode issuer, gen(issuer_code)
 
 // Column 2: Using market share of target and acquiror > 0.05
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_cbsa calendar_year) cluster(cbsacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_cbsa i.episode_start_year##i.treated_cbsa##i.calendar_year) ///
+cluster(cbsacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label keep(treatedXpost) `outputoptions' ctitle("Underwriting","Spread (bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer \(\times\) Cohort FE", "Yes","Clustering","CBSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Cohort \(\times\) Year FE", "Yes","Issuer \(\times\) Cohort FE", "Yes","Clustering","CBSA \& Year")
 
 /* Column 3 */
 
@@ -404,12 +341,13 @@ label var treatedXpost "Treated $\times$ Post"
 encode issuer, gen(issuer_code)
 
 // Column 3: Using rise in top 5 share > 0.05
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_cbsa calendar_year) cluster(cbsacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_cbsa i.episode_start_year##i.treated_cbsa##i.calendar_year) ///
+cluster(cbsacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label keep(treatedXpost) `outputoptions' ctitle("Underwriting","Spread (bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer \(\times\) Cohort FE", "Yes","Clustering","CBSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Cohort \(\times\) Year FE", "Yes","Issuer \(\times\) Cohort FE", "Yes","Clustering","CBSA \& Year")
 
 }
 
@@ -430,11 +368,11 @@ label var treatedXpost "Treated $\times$ Post"
 
 encode issuer, gen(issuer_code)
 
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
-// 
 
 import excel "../RawData/MSA/CBSA.xlsx", sheet("List 1") cellrange(A3:L1921) firstrow clear
 

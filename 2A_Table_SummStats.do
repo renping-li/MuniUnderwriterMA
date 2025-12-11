@@ -262,7 +262,7 @@ post `memhold' ("Panel A: SDC Sample") (" ") (" ") (" ") (" ") (" ") (" ")
 
 // Part 1: One digit
 
-local varlist = "amount_adjusted avg_maturity gross_spread_inbp avg_yield_inbp treasury_avg_spread_inbp mma_avg_spread_inbp mod_tic_spread_inbp mod_tic_spread_inbp_timefe underpricing_15to30 net_cost_inbp net_cost_inbp_timefe hhi_by_n"
+local varlist = "amount_adjusted avg_maturity gross_spread_inbp avg_yield_inbp treasury_avg_spread_inbp mma_avg_spread_inbp underpricing_15to30 net_cost_inbp net_cost_inbp_timefe"
 local lb_amount_adjusted = "Amount (\$ Million)"
 local lb_avg_maturity = "Maturity (Years)"
 local lb_gross_spread_inbp = "Underwriting Spread (bps.)"
@@ -272,8 +272,8 @@ local lb_mma_avg_spread_inbp = "Reoffering Yield Spread over MMA (bps.)"
 local lb_mod_tic_spread_inbp = "Modified TIC Spread (bps.)"
 local lb_mod_tic_spread_inbp_timefe = "Modified TIC Spread, Year FE (bps.)"
 local lb_underpricing_15to30 = "Initial Underpricing ($)"
-local lb_net_cost_inbp = "Total Issuing Cost (bps.)"
-local lb_net_cost_inbp_timefe = "Total Issuing Cost, Year FE (bps.)"
+local lb_net_cost_inbp = "Total Issuance Expenses (bps.)"
+local lb_net_cost_inbp_timefe = "Total Issuance Expenses, Year FE (bps.)"
 local lb_hhi_by_n = "HHI"
 
 foreach var in `varlist' {
@@ -295,8 +295,8 @@ post `memhold' ("`lb_`var''") ("`mean'") ("`sd'") ("`p25'") ("`median'") ("`p75'
 
 // Part 2: Two digits
 
-local varlist = "tbb_n_bidders bidC bidN bidP taxE taxT taxA securityGO securityRV if_advisor if_dual_advisor has_rating insured_ratio if_insured is_callable is_cb_eligible"
-local lb_tbb_n_bidders = "Number of Bidders (Competitive Bidding only)"
+local varlist = "tbb_n_bidders bidC bidN bidP taxE taxT taxA securityGO securityRV if_advisor has_rating insured_ratio if_insured is_cb_eligible"
+local lb_tbb_n_bidders = "Number of Bidders"
 local lb_bidC = "Method of Sale: Competitive Bidding"
 local lb_bidN = "Method of Sale: Negotiated Sales"
 local lb_bidP = "Method of Sale: Private Placement"
@@ -335,7 +335,7 @@ post `memhold' ("`lb_`var''") ("`mean'") ("`sd'") ("`p25'") ("`median'") ("`p75'
 
 post `memhold' (" ") (" ") (" ") (" ") (" ") (" ") (" ")
 
-post `memhold' ("Panel B: Local M&A Episodes") (" ") (" ") (" ") (" ") (" ") (" ")
+post `memhold' ("Panel B: Local Consolidation Episodes") (" ") (" ") (" ") (" ") (" ") (" ")
 
 local varlist = "acquiror_market_share_n_max target_market_share_n_max"
 local lb_acquiror_market_share_n_max = "Acquiror Market Share"
@@ -359,7 +359,7 @@ post `memhold' ("`lb_`var''") ("`mean'") ("`sd'") ("`p25'") ("`median'") ("`p75'
 }
 
 local varlist = "hhi_dif"
-local lb_hhi_dif = "Delta HHI"
+local lb_hhi_dif = "$\Delta_{HHI}$"
 
 foreach var in `varlist' {
 
@@ -573,14 +573,14 @@ post `memhold' (" ") ("Mean") ("SD") ("25%") ("Median") ("75%") ("N")
 
 post `memhold' (" ") (" ") (" ") (" ") (" ") (" ") (" ")
 
-post `memhold' ("Panel D: School Districts Sample") (" ") (" ") (" ") (" ") (" ") (" ")
+post `memhold' ("Panel A: School Districts") (" ") (" ") (" ") (" ") (" ") (" ")
 
 local varlist = "totalrevenue_pe totalexpenditure_pe totalinterestondebt_toexp totalltdissued_toexp surplus_ratio totaltaxes_toexp propertytax_toexp totaligrevenue_toexp totalfedigrevenue_toexp totalstateigrevenue_toexp totlocaligrev_toexp"
 local lb_totalrevenue_pe = "Revenue Per Student"
 local lb_totalexpenditure_pe = "Expenditure Per Student"
 local lb_totalinterestondebt_toexp = "Interest Paid/Exp. (%)"
-local lb_totalltdissued_toexp "New Issuance/Exp. (%)"
-local lb_surplus_ratio "Surplus Ratio (%)"
+local lb_totalltdissued_toexp "Issuance/Exp. (%)"
+local lb_surplus_ratio "Budget Surplus Ratio (%)"
 local lb_totaltaxes_toexp "Total Taxes/Exp. (%)"
 local lb_propertytax_toexp "Property Tax/Exp. (%)"
 local lb_totaligrevenue_toexp "Inter-Gov. Trans./Exp. (%)"
@@ -608,14 +608,14 @@ post `memhold' ("`lb_`var''") ("`mean'") ("`sd'") ("`p25'") ("`median'") ("`p75'
 
 post `memhold' (" ") (" ") (" ") (" ") (" ") (" ") (" ")
 
-post `memhold' ("Panel E: Municipalities/Townships/Counties Sample") (" ") (" ") (" ") (" ") (" ") (" ")
+post `memhold' ("Panel B: Municipalities/Townships/Counties") (" ") (" ") (" ") (" ") (" ") (" ")
 
 local varlist = "totalrevenue_pc totalexpenditure_pc totalinterestondebt_toexp totalltdissued_toexp surplus_ratio totaltaxes_toexp propertytax_toexp totaligrevenue_toexp totalfedigrevenue_toexp totalstateigrevenue_toexp totlocaligrev_toexp"
 local lb_totalrevenue_pc = "Revenue Per Capita"
 local lb_totalexpenditure_pc = "Expenditure Per Capita"
 local lb_totalinterestondebt_toexp = "Interest Paid/Exp. (%)"
-local lb_totalltdissued_toexp "New Issuance/Exp. (%)"
-local lb_surplus_ratio "Surplus Ratio (%)"
+local lb_totalltdissued_toexp "Issuance/Exp. (%)"
+local lb_surplus_ratio "Budget Surplus Ratio (%)"
 local lb_totaltaxes_toexp "Total Taxes/Exp. (%)"
 local lb_propertytax_toexp "Property Tax/Exp. (%)"
 local lb_totaligrevenue_toexp "Inter-Gov. Trans./Exp. (%)"
@@ -645,7 +645,7 @@ postclose `memhold'
 clear
 use `table'
 
-texsave using "../Draft/tabs/Sum_Stats_GovFin.tex", replace frag nonames title("Summary Statistics") size(small) label("sum_stats_govfin") location("H")
+texsave using "../Draft/tabs/Sum_Stats_GovFin.tex", replace frag nonames title("Summary Statistics For Local Government Finances") size(small) label("sum_stats_govfin") location("H")
 
 
 

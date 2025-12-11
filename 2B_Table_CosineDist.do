@@ -35,8 +35,8 @@ gen is_bond = type=="bond"
 gen is_equity = type=="equity"
 
 label var is_muni "For Municipal Bond Underwriters"
-label var is_bond "Corporate Bond Over Municipal Bond"
-label var is_equity "Corporate Equity Over Municipal Bond"
+label var is_bond "Corporate Bond"
+label var is_equity "Corporate Equity"
 
 label var distmiles_in1000 "Geographic Distance, in 1,000 Miles"
 

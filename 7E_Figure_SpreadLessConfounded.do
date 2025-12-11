@@ -74,12 +74,28 @@ twoway ///
 , xlabel( ///
 1 "Whole Sample" 1.85 "Exclude M&As" 2.15 "Due to Top Two Reasons" 2.85 "Further Exclude M&As" 3.15 "Due to Financial Stress" ///
 , angle(45) noticks) ///
-xscale(range(-0.5,4.5)) ///
+xscale(range(0.5,3.5)) ///
 yscale(range(-0.5,12.5)) ///
 ytitle("Effects on Underwriting Spread (in bps.)") xtitle("") /// 
 legend(off) ///
 yline(0.1, lpattern(dash) lcolor(red))
 graph export "../Draft/figs/GrossSpread_ByReportedReason.eps", replace
+
+// Figures tailored for poster 
+
+twoway ///
+(rcap low95 high95 idx if group==1, vertical lcolor(blue*0.3)) ///
+(scatter coef idx if group ==1, mcolor(blue)) ///
+, xlabel( ///
+1 "Whole Sample" 1.825 "Exclude M&As" 2 "Due to Top Two" 2.175 "Confounding Reasons" 2.825 "Further Exclude" 3 "M&As Due to " 3.175 "Financial Stress" ///
+, angle(45) noticks) ///
+xscale(range(0.5,3.5)) ///
+yscale(range(-0.5,12.5)) ///
+ytitle("Effects on Underwriting Spread (in bps.)") xtitle("") /// 
+title("The Narrative Approach") ///
+legend(off) ///
+yline(0.1, lpattern(dash) lcolor(red))
+graph export "../Draft/figs/GrossSpread_ByReportedReason_Poster.eps", replace
 
 
 
@@ -178,10 +194,31 @@ twoway ///
 2.85 "Less than 3%" 3.15 "of Total Businesses" ///
 4.2 "Both Affected & Neighbours" 4.5"Make up for Less than 3%" 4.8 "of Total Businesses" ///
 , angle(45) noticks) ///
-xscale(range(-0.5,4.5)) ///
+xscale(range(0.5,4.5)) ///
 yscale(range(-0.5,20)) ///
 ytitle("Effects on Underwriting Spread (in bps.)") xtitle("") /// 
 legend(off) ///
 yline(0.1, lpattern(dash) lcolor(red))
 graph export "../Draft/figs/GrossSpread_MarketSmallFraction.eps", replace
+
+// Figures tailored for poster 
+
+twoway ///
+(rcap low95 high95 idx if group==1, vertical lcolor(orange*0.3)) ///
+(scatter coef idx if group ==1, mcolor(orange)) ///
+, xlabel( ///
+0.85 "Less than 10%" 1.15 "of Total Businesses" ///
+1.85 "Less than 5%" 2.15 "of Total Businesses" ///
+2.85 "Less than 3%" 3.15 "of Total Businesses" ///
+4.2 "Both Affected & Neighbours" 4.5"Make up for Less than 3%" 4.8 "of Total Businesses" ///
+, angle(45) noticks) ///
+xscale(range(0.5,4.5)) ///
+yscale(range(-0.5,20)) ///
+ytitle("Effects on Underwriting Spread (in bps.)") xtitle("") /// 
+title("Focusing on Peripheral Markets") ///
+legend(off) ///
+yline(0.1, lpattern(dash) lcolor(red))
+graph export "../Draft/figs/GrossSpread_MarketSmallFraction_Poster.eps", replace
+
+
 

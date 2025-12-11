@@ -129,8 +129,8 @@ if_healthXtreatedXpost ///
 if_tspXtreatedXpost ///
 if_polluteXtreatedXpost ///
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 /* Create a plot */
 
@@ -260,7 +260,7 @@ label var treatedXpost "Treated X Post"
 
 encode issuer, gen(issuer_code)
 
-// Acquiror's desire to gain local/regional dominance
+// Acquiror's intent to gain local/regional dominance
 cap drop if_reason TXPXif_reason TXPXnot_reason
 gen if_reason = reasonma_local_dom=="True"
 gen TXPXif_reason = treatedXpost*if_reason
@@ -268,15 +268,15 @@ gen TXPXnot_reason = treatedXpost*(1-if_reason)
 
 reghdfe gross_spread_inbp i.(treated post)##(if_reason) TXPXif_reason TXPXnot_reason ///
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPtXlocal_dom = _b[TXPXif_reason]
 local b_TXPtXnot_local_dom = _b[TXPXnot_reason]
 local se_TXPtXlocal_dom = _se[TXPXif_reason]
 local se_TXPtXnot_local_dom = _se[TXPXnot_reason]
 
-// Acquiror's desire to expand geographically
+// Acquiror's intent to expand geographically
 cap drop if_reason TXPXif_reason TXPXnot_reason
 gen if_reason = reasonma_expand_geo=="True"
 gen TXPXif_reason = treatedXpost*if_reason
@@ -284,15 +284,15 @@ gen TXPXnot_reason = treatedXpost*(1-if_reason)
 
 reghdfe gross_spread_inbp i.(treated post)##(if_reason) TXPXif_reason TXPXnot_reason ///
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPtXexpand_geo = _b[TXPXif_reason]
 local b_TXPtXnot_expand_geo = _b[TXPXnot_reason]
 local se_TXPtXexpand_geo = _se[TXPXif_reason]
 local se_TXPtXnot_expand_geo = _se[TXPXnot_reason]
 
-// Acquiror's desire to gain industry-wide dominance
+// Acquiror's intent to gain industry-wide dominance
 cap drop if_reason TXPXif_reason TXPXnot_reason
 gen if_reason = reasonma_ind_dom=="True"
 gen TXPXif_reason = treatedXpost*if_reason
@@ -300,8 +300,8 @@ gen TXPXnot_reason = treatedXpost*(1-if_reason)
 
 reghdfe gross_spread_inbp i.(treated post)##(if_reason) TXPXif_reason TXPXnot_reason ///
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPtXind_dom = _b[TXPXif_reason]
 local b_TXPtXnot_ind_dom = _b[TXPXnot_reason]
@@ -316,8 +316,8 @@ gen TXPXnot_reason = treatedXpost*(1-if_reason)
 
 reghdfe gross_spread_inbp i.(treated post)##(if_reason) TXPXif_reason TXPXnot_reason ///
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPtXsyn_comb_lines = _b[TXPXif_reason]
 local b_TXPtXnot_syn_comb_lines = _b[TXPXnot_reason]
@@ -332,15 +332,15 @@ gen TXPXnot_reason = treatedXpost*(1-if_reason)
 
 reghdfe gross_spread_inbp i.(treated post)##(if_reason) TXPXif_reason TXPXnot_reason ///
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPtXsyn_cost = _b[TXPXif_reason]
 local b_TXPtXnot_syn_cost = _b[TXPXnot_reason]
 local se_TXPtXsyn_cost = _se[TXPXif_reason]
 local se_TXPtXnot_syn_cost = _se[TXPXnot_reason]
 
-// Acquiror's desire to diversify its revenue sources
+// Acquiror's intent to diversify its revenue sources
 cap drop if_reason TXPXif_reason TXPXnot_reason
 gen if_reason = reasonma_diversify=="True"
 gen TXPXif_reason = treatedXpost*if_reason
@@ -348,8 +348,8 @@ gen TXPXnot_reason = treatedXpost*(1-if_reason)
 
 reghdfe gross_spread_inbp i.(treated post)##(if_reason) TXPXif_reason TXPXnot_reason ///
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPtXdiversify = _b[TXPXif_reason]
 local b_TXPtXnot_diversify = _b[TXPXnot_reason]
@@ -364,8 +364,8 @@ gen TXPXnot_reason = treatedXpost*(1-if_reason)
 
 reghdfe gross_spread_inbp i.(treated post)##(if_reason) TXPXif_reason TXPXnot_reason ///
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPtXfin_stress = _b[TXPXif_reason]
 local b_TXPtXnot_fin_stress = _b[TXPXnot_reason]
@@ -381,15 +381,15 @@ gen desc = ""
 gen coef_if_reason = .
 gen se_if_reason = .
 
-replace desc = "Acquiror's desire to gain local/regional dominance" if idx==1
+replace desc = "Acquiror's intent to gain local/regional dominance" if idx==1
 replace coef_if_reason = `b_TXPtXlocal_dom' if idx==1
 replace se_if_reason = `se_TXPtXlocal_dom' if idx==1
 
-replace desc = "Acquiror's desire to expand geographically" if idx==2
+replace desc = "Acquiror's intent to expand geographically" if idx==2
 replace coef_if_reason = `b_TXPtXexpand_geo' if idx==2
 replace se_if_reason = `se_TXPtXexpand_geo' if idx==2
 
-replace desc = "Acquiror's desire to gain industry-wide dominance" if idx==3
+replace desc = "Acquiror's intent to gain nationwide dominance" if idx==3
 replace coef_if_reason = `b_TXPtXind_dom' if idx==3
 replace se_if_reason = `se_TXPtXind_dom' if idx==3
 
@@ -401,7 +401,7 @@ replace desc = "Synergy from cost management" if idx==5
 replace coef_if_reason = `b_TXPtXsyn_cost' if idx==5
 replace se_if_reason = `se_TXPtXsyn_cost' if idx==5
 
-replace desc = "Acquiror's desire to diversify its revenue sources" if idx==6
+replace desc = "Acquiror's intent to diversify its revenue sources" if idx==6
 replace coef_if_reason = `b_TXPtXdiversify' if idx==6
 replace se_if_reason = `se_TXPtXdiversify' if idx==6
 
@@ -417,12 +417,12 @@ twoway ///
 (rcap upper_if_reason lower_if_reason idx, horizontal), ///
 ytitle("") xtitle("Effects on Underwriting Spread (in bps.)") xline(0, lpattern(dash)) legend(label(1 "Coef") label(2 "95% CI") position(2) col(1) ring(0)) ///
 ylabel( ///
-1 "Acquiror's desire to gain local/regional dominance" ///
-2 "Acquiror's desire to expand geographically" ///
-3 "Acquiror's desire to gain industry-wide dominance" ///
+1 "Acquiror's intent to gain local/regional dominance" ///
+2 "Acquiror's intent to expand geographically" ///
+3 "Acquiror's intent to gain nationwide dominance" ///
 4 "Synergy from combining different lines of business" ///
 5 "Synergy from cost management" ///
-6 "Acquiror's desire to diversify its revenue sources" ///
+6 "Acquiror's intent to diversify its revenue sources" ///
 7 "Financial stress of the target", ///
 angle(0)) ///
 yscale(range(0,7.5)) ysc(reverse) xsize(10) ysize(5)
@@ -511,11 +511,11 @@ gen TXPXhhi_dif_gt300 = treatedXpost*(hhi_dif>0.03&hhi_dif!=.)
 label var TXPXhhi_dif_gt300 "Treated $\times$ Post $\times$ \emph{predicted} $\Delta_{HHI}$ $\ge$ 300"
 
 // Column 1: By increased in HHI induced by merger
-reghdfe gross_spread_inbp treated post if_hhi_dif_200_300 if_hhi_dif_gt300 ///
-TXPXhhi_dif_100_200 TXPXhhi_dif_200_300 TXPXhhi_dif_gt300 /// 
+reghdfe gross_spread_inbp ///
+TXPXhhi_dif_100_200 TXPXhhi_dif_200_300 TXPXhhi_dif_gt300 ///
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPXhhi_dif_100_200 = _b[TXPXhhi_dif_100_200]
 local b_TXPXhhi_dif_200_300 = _b[TXPXhhi_dif_200_300]
@@ -552,11 +552,12 @@ gen TXPXavghhi_gt2500 = treatedXpost*(avghhi_by_n>=0.25)&(avghhi_by_n!=.)
 label var TXPXavghhi_gt2500 "Treated $\times$ Post $\times$ HHI $\ge$ 2500"
 
 // Column 2: By initial HHI
-reghdfe gross_spread_inbp (i.treated i.post)##(i.if_avghhi_1000_2500 i.if_avghhi_gt2500) ///
-TXPXavghhi_lt1000 TXPXavghhi_1000_2500 TXPXavghhi_gt2500 /// 
+reghdfe gross_spread_inbp ///
+(post)##(if_avghhi_lt1000 if_avghhi_1000_2500 if_avghhi_gt2500) ///
+TXPXavghhi_lt1000 TXPXavghhi_1000_2500 TXPXavghhi_gt2500 ///
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPXavghhi_lt1000 = _b[TXPXavghhi_lt1000]
 local b_TXPXavghhi_1000_2500 = _b[TXPXavghhi_1000_2500]
@@ -565,28 +566,6 @@ local b_TXPXavghhi_gt2500 = _b[TXPXavghhi_gt2500]
 local se_TXPXavghhi_lt1000 = _se[TXPXavghhi_lt1000]
 local se_TXPXavghhi_1000_2500 = _se[TXPXavghhi_1000_2500]
 local se_TXPXavghhi_gt2500 = _se[TXPXavghhi_gt2500]
-
-/* Column 3 */
-
-gen if_advisor_coded = if_advisor=="Yes"
-label var if_advisor_coded "Has Advisor"
-
-gen TXPXhas_advisor = treatedXpost*(if_advisor=="Yes")
-label var TXPXhas_advisor "Treated $\times$ Post $\times$ Has Advisor"
-
-gen TXPXno_advisor = treatedXpost*(if_advisor=="No")
-label var TXPXno_advisor "Treated $\times$ Post $\times$ No Advisor"
-
-// Column 3: By whether employing an advisor
-reghdfe gross_spread_inbp (i.treated i.post)##(i.if_advisor_coded) TXPXhas_advisor TXPXno_advisor /// 
-if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
-
-local b_TXPXhas_advisor = _b[TXPXhas_advisor]
-local b_TXPXno_advisor = _b[TXPXno_advisor]
-local se_TXPXhas_advisor = _se[TXPXhas_advisor]
-local se_TXPXno_advisor = _se[TXPXno_advisor]
 
 clear
 set obs 10
@@ -615,36 +594,25 @@ replace label = "HHI > 2500" if idx==7
 replace coef = `b_TXPXavghhi_gt2500' if idx==7
 replace se = `se_TXPXavghhi_gt2500' if idx==7
 
-replace label = "Has advisor" if idx==9
-replace coef = `b_TXPXhas_advisor' if idx==9
-replace se = `se_TXPXhas_advisor' if idx==9
-replace label = "No advisor" if idx==10
-replace coef = `b_TXPXno_advisor' if idx==10
-replace se = `se_TXPXno_advisor' if idx==10
-
 gen low95 = coef-1.95*se
 gen high95 = coef+1.95*se
 
 gen group = .
 replace group = 1 if idx==1|idx==2|idx==3
 replace group = 2 if idx==5|idx==6|idx==7
-replace group = 3 if idx==9|idx==10
 
 replace idx = idx-0.5 if idx==5|idx==6|idx==7
-replace idx = idx-1 if idx==9|idx==10
 
 twoway ///
 (rcap low95 high95 idx if group==1, vertical lcolor(orange*0.3)) ///
 (rcap low95 high95 idx if group==2, vertical lcolor(green*0.3)) ///
-(rcap low95 high95 idx if group==3, vertical lcolor(blue*0.3)) ///
 (scatter coef idx if group ==1, mcolor(orange)) ///
 (scatter coef idx if group ==2, mcolor(green)) ///
-(scatter coef idx if group ==3, mcolor(blue)) ///
 , xlabel( ///
 1 "{it:Predicted} {&Delta}{sub:HHI} in [100,200)" 2 "{it:Predicted} {&Delta}{sub:HHI} in [200,300)" 3 "{it:Predicted} {&Delta}{sub:HHI} > 300" ///
 4.5 "HHI < 1000" 5.5 "HHI in [1000,2500)" 6.5 "HHI > 2500" ///
-8 "Has Advisor" 9 "No Advisor", angle(45) noticks) ///
-xscale(range(-0.5,10)) ///
+, angle(45) noticks) ///
+xscale(range(-0.5,7.5)) ///
 ytitle("Effects on Underwriting Spread (in bps.)") xtitle("") /// 
 legend(off) ///
 yline(0.1, lpattern(dash) lcolor(red))
@@ -680,8 +648,8 @@ label var TXPXbidN "Treated $\times$ Post $\times$ Negotiated Sales"
 // Column 1: Either competitive bidding or negotiated sales
 reghdfe gross_spread_inbp (i.treated i.post)##(i.bid_coded) TXPXbidC TXPXbidN /// 
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPXbidC = _b[TXPXbidC]
 local b_TXPXbidN = _b[TXPXbidN]
@@ -705,8 +673,8 @@ label var TXPXtaxableA "Treated $\times$ Post $\times$ Alternative Minimum Tax"
 // Column 2: By taxable or exempt
 reghdfe gross_spread_inbp (i.treated i.post)##(i.taxable_code_coded) TXPXtaxableE TXPXtaxableT TXPXtaxableA /// 
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPXtaxableE = _b[TXPXtaxableE]
 local b_TXPXtaxableT = _b[TXPXtaxableT]
@@ -729,8 +697,8 @@ label var TXPXsectypeGO "Treated $\times$ Post $\times$ GO"
 // Column 3: By Revenue or Go
 reghdfe gross_spread_inbp (i.treated i.post)##(i.security_type_coded) TXPXsectypeREV TXPXsectypeGO /// 
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPXsectypeREV = _b[TXPXsectypeREV]
 local b_TXPXsectypeGO = _b[TXPXsectypeGO]
@@ -751,8 +719,8 @@ label var TXPXafter2000 "Treated $\times$ Post $\times$ Post-2000"
 // Column 4: By whether before or after 2000
 reghdfe gross_spread_inbp (i.treated i.post)##(i.if_before2000) TXPXbefore2000 TXPXafter2000 /// 
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPXbefore2000 = _b[TXPXbefore2000]
 local b_TXPXafter2000 = _b[TXPXafter2000]
@@ -776,10 +744,10 @@ label var TXPXbank_is_neither "Treated $\times$ Post $\times$ Bank is not in M\&
 
 // Column 5: By whether bank is a target bank
 reghdfe gross_spread_inbp ///
-(i.treated)##(if_bank_is_either if_bank_is_neither) i.post TXPXbank_is_either TXPXbank_is_neither ///
+if_bank_is_either if_bank_is_neither TXPXbank_is_either TXPXbank_is_neither ///
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_TXPXbank_is_either = _b[TXPXbank_is_either]
 local b_TXPXbank_is_neither = _b[TXPXbank_is_neither]
@@ -903,8 +871,8 @@ label var TXPXover5relation "Treated $\times$ Post $\times$ More than 5 Relation
 reghdfe gross_spread_inbp (i.treated i.post)##(if0to1relation if2to3relation if4to5relation ifover5relation) ///
 TXPX0to1relation TXPX2to3relation TXPX4to5relation TXPXover5relation /// 
 if year_to_merger>=-4&year_to_merger<=7, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) ///
-cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local b_if0to1relation = _b[TXPX0to1relation]
 local b_if2to3relation = _b[TXPX2to3relation]

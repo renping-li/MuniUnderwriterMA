@@ -22,7 +22,7 @@ def FUN_1B_Get_Delta_CB_HHI(CSAs_part):
             
             # HHI in the year prior to M&A
             SOD_prior = SOD[(SOD['CSA Code']==CSA)&(SOD['year']==year-1)].copy()
-            SOD_prior = SOD_prior.groupby('name').agg({'DEPSUMBR':sum})
+            SOD_prior = SOD_prior.groupby('name').agg({'DEPSUMBR':'sum'})
             
             SOD_prior = SOD_prior.reset_index()
             hhi_prior = np.sum((SOD_prior['DEPSUMBR']/np.sum(SOD_prior['DEPSUMBR']))**2)
@@ -38,7 +38,7 @@ def FUN_1B_Get_Delta_CB_HHI(CSAs_part):
             if len(SNL_in_SOD_relevant)>0:
                 for idx,row in SNL_in_SOD_relevant.iterrows():
                     SOD_prior.loc[SOD_prior['name']==row['Target'],'name'] = row['Buyer']
-                SOD_prior = SOD_prior.groupby('name').agg({'DEPSUMBR':sum})
+                SOD_prior = SOD_prior.groupby('name').agg({'DEPSUMBR':'sum'})
                 hhi_post = np.sum((SOD_prior['DEPSUMBR']/np.sum(SOD_prior['DEPSUMBR']))**2)
                 Delta_CB_HHI = Delta_CB_HHI+[{'CSA Code':CSA,'year':year,'CB_hhi_dif':hhi_post-hhi_prior}]
             else:

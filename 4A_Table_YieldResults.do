@@ -33,13 +33,14 @@ encode issuer, gen(issuer_code)
 /* Column 1 */
 
 // Column 1: Yield spread over treasury
-reghdfe treasury_avg_spread_inbp treated post treatedXpost ///
+reghdfe treasury_avg_spread_inbp treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) replace label ///
 keep(treatedXpost) `outputoptions' ctitle("Yield Spread","over Treasury","(bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year")
 
 local coef_treasury_avg_spread_inbp = _b[treatedXpost]
 local coef_treasury_avg_spread_inbp : display %-9.2f `coef_treasury_avg_spread_inbp'
@@ -58,44 +59,48 @@ file close myfile
 // Column 2: Yield spread over treasury, by the method of sales
 reghdfe treasury_avg_spread_inbp bid_code##(treated post) treatedXpost_bidC treatedXpost_bidN treatedXpost_bidP ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label ///
 keep(treatedXpost_bidC treatedXpost_bidN) `outputoptions' ctitle("Yield Spread","over Treasury","(bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year")
 
 /* Column 3 */
 
 // Column 3: Yield spread over MMA
-reghdfe mma_avg_spread_inbp treated post treatedXpost ///
+reghdfe mma_avg_spread_inbp treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label ///
 keep(treatedXpost) `outputoptions' ctitle("Yield Spread","over MMA","(bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year")
 
 /* Column 4 */
 
 // Column 4: Reoffering yield
-reghdfe avg_yield_inbp treated post treatedXpost ///
+reghdfe avg_yield_inbp treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label ///
 keep(treatedXpost) `outputoptions' ctitle("Reoffering","Yield","(bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year")
 
 /* Column 5 */
 
 // Column 5: Initial underpricing
-reghdfe underpricing_15to30 treated post treatedXpost ///
+reghdfe underpricing_15to30 treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, /// 
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label ///
 keep(treatedXpost) `outputoptions' ctitle("Initial","Under-","pricing") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year")
 
 local underpricing_15to30_effects = _b[treatedXpost]
 local underpricing_15to30_effects : display %-9.2f `underpricing_15to30_effects'
@@ -114,11 +119,12 @@ file close myfile
 // Column 6: Initial underpricing, by the method of sales
 reghdfe underpricing_15to30 bid_code##(treated post) treatedXpost_bidC treatedXpost_bidN treatedXpost_bidP ///
 if year_to_merger>=-4&year_to_merger<=4, /// 
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) constant
 
 outreg2 using  "`outfile'", tex(fragment) append label ///
 keep(treatedXpost_bidC treatedXpost_bidN) `outputoptions' ctitle("Initial","Under-","pricing") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year")
 
 local underpricing_15to30_effects_C = _b[treatedXpost_bidC]
 local underpricing_15to30_effects_C : display %-9.2f `underpricing_15to30_effects_C'
@@ -147,13 +153,14 @@ file close myfile
 /* Column 7 */
 
 // Column 7: Number of bids
-reghdfe tbb_n_bidders treated post treatedXpost ///
+reghdfe tbb_n_bidders treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, /// 
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label ///
 keep(treatedXpost) `outputoptions' ctitle("N of","Bids") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA \& Year") ///
+addstat("Adjusted R-squared", e(r2_a)) addtext("Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year") ///
 sortvar(treatedXpost treatedXpost_bidC treatedXpost_bidN)
 
 local coef_tbb_n_bidders_effects = _b[treatedXpost]
@@ -198,55 +205,60 @@ encode issuer, gen(issuer_code)
 /* Column 1 */
 
 // Column 1: Reoffering yield
-reghdfe avg_yield_inbp treated post treatedXpost ///
+reghdfe avg_yield_inbp treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) replace label ///
 keep(treatedXpost) `outputoptions' ctitle("Yield at","Initial Offering","(bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year")
 
 /* Column 2 */
 
 // Column 2: Yield spread over treasury
-reghdfe treasury_avg_spread_inbp treated post treatedXpost ///
+reghdfe treasury_avg_spread_inbp treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label ///
 keep(treatedXpost) `outputoptions' ctitle("Yield Spread","over Treasury","(bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year")
 
 /* Column 3 */
 
 // Column 3: Yield spread over treasury, by the method of sales
 reghdfe treasury_avg_spread_inbp bid_code##(treated post) treatedXpost_bidC treatedXpost_bidN treatedXpost_bidP ///
 if year_to_merger>=-4&year_to_merger<=4, /// 
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label ///
 keep(treatedXpost_bidC treatedXpost_bidN) `outputoptions' ctitle("Yield Spread","over Treasury","(bps.)") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year")
 
 /* Column 4 */
 
 // Column 4: Initial underpricing
-reghdfe underpricing_15to30 treated post treatedXpost ///
+reghdfe underpricing_15to30 treatedXpost ///
 if year_to_merger>=-4&year_to_merger<=4, /// 
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label keep(treatedXpost) `outputoptions' ctitle("Initial","Underpricing") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA \& Year")
+addstat("Adjusted R-squared", e(r2_a)) addtext("Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year")
 
 /* Column 5 */
 
 // Column 5: Initial underpricing, by the method of sales
 reghdfe underpricing_15to30 bid_code##(treated post) treatedXpost_bidC treatedXpost_bidN treatedXpost_bidP ///
 if year_to_merger>=-4&year_to_merger<=4, /// 
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label keep(treatedXpost_bidC treatedXpost_bidN) `outputoptions' ctitle("Initial","Underpricing") ///
-addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA \& Year") ///
+addstat("Adjusted R-squared", e(r2_a)) addtext("Issuer $\times$ Cohort FE", "Yes","Cohort $\times$ Year FE", "Yes","Clustering","CSA \& Year") ///
 sortvar(treatedXpost treatedXpost_bidC treatedXpost_bidN)
 
 

@@ -26,17 +26,18 @@ post `memhold' (" ") ("[-4, +4]") ("[-4, +7]") ("[-4, +10]")
 // Panel A: Exclude those driven by endogenous factors
 
 post `memhold' (" ") (" ") (" ") (" ")
-post `memhold' ("Panel A: M\&As are driven by factors likely unrelated to local economic dynamics according to news articles") (" ") (" ") (" ")
+post `memhold' ("Panel A: All M\&As have rationales likely unrelated to local economic conditions") (" ") (" ") (" ")
 
 cap prog drop regression
 prog regression
 
 	args begin_year end_year
 
-	reghdfe gross_spread_inbp treated post treatedXpost ///
+	reghdfe gross_spread_inbp treatedXpost ///
 	if (year_to_merger>=`begin_year'&year_to_merger<=`end_year') & ///
 	reasonma_endo_possible=="False", ///
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
 
 end
 
@@ -111,17 +112,18 @@ post `memhold' ("Adjusted R-squared") ("`r2_coef1'") ("`r2_coef2'") ("`r2_coef3'
 // Panel B: Further exclude M&As driven by financial distress
 
 post `memhold' (" ") (" ") (" ") (" ")
-post `memhold' ("Panel B: Further exclude M\&As driven by financial distress") (" ") (" ") (" ")
+post `memhold' ("Panel B: Further exclude M\&As driven by financial distress of the target") (" ") (" ") (" ")
 
 cap prog drop regression
 prog regression
 
 	args begin_year end_year
 
-	reghdfe gross_spread_inbp treated post treatedXpost ///
+	reghdfe gross_spread_inbp treatedXpost ///
 	if (year_to_merger>=`begin_year'&year_to_merger<=`end_year') & ///
 	reasonma_endo_possible=="False"&reasonma_fin_stress=="False", ///
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
 
 end
 
@@ -203,10 +205,11 @@ prog regression
 
 	args begin_year end_year
 
-	reghdfe gross_spread_inbp treated post treatedXpost ///
+	reghdfe gross_spread_inbp treatedXpost ///
 	if (year_to_merger>=`begin_year'&year_to_merger<=`end_year') & ///
 	max_acquiror_weight<0.05&max_target_weight<0.05, ///
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
 
 end
 
@@ -288,11 +291,12 @@ prog regression
 
 	args begin_year end_year
 
-	reghdfe gross_spread_inbp treated post treatedXpost ///
+	reghdfe gross_spread_inbp treatedXpost ///
 	if (year_to_merger>=`begin_year'&year_to_merger<=`end_year') & ///
 	max_acquiror_weight<0.05&max_target_weight<0.05 ///
 	&max_acquiror_weight_in_neighbour<0.05 &max_target_weight_in_neighbour<0.05, ///
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
 
 end
 
@@ -377,16 +381,17 @@ label var treatedXpost "Treated $\times$ Post"
 encode issuer, gen(issuer_code)
 
 post `memhold' (" ") (" ") (" ") (" ")
-post `memhold' ("Panel E: Exclude cases with concurrent CB bank M\&As $\ge$ 100") (" ") (" ") (" ")
+post `memhold' ("Panel E: Exclude local consolidation episodes with concurrent CB M\&As $\ge$ 100") (" ") (" ") (" ")
 
 cap prog drop regression
 prog regression
 
 	args begin_year end_year
 
-	reghdfe gross_spread_inbp treated post treatedXpost ///
+	reghdfe gross_spread_inbp treatedXpost ///
 	if (year_to_merger>=`begin_year'&year_to_merger<=`end_year'), ///
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
 
 end
 
@@ -471,16 +476,17 @@ label var treatedXpost "Treated $\times$ Post"
 encode issuer, gen(issuer_code)
 
 post `memhold' (" ") (" ") (" ") (" ")
-post `memhold' ("Panel F: Exclude cases with concurrent CB bank M\&As $\ge$ 50") (" ") (" ") (" ")
+post `memhold' ("Panel F: Exclude local consolidation episodes with concurrent CB M\&As $\ge$ 50") (" ") (" ") (" ")
 
 cap prog drop regression
 prog regression
 
 	args begin_year end_year
 
-	reghdfe gross_spread_inbp treated post treatedXpost ///
+	reghdfe gross_spread_inbp treatedXpost ///
 	if (year_to_merger>=`begin_year'&year_to_merger<=`end_year'), ///
-	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+	absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+	cluster(csacode calendar_year) noconstant
 
 end
 
@@ -554,7 +560,7 @@ post `memhold' ("Adjusted R-squared") ("`r2_coef1'") ("`r2_coef2'") ("`r2_coef3'
 
 post `memhold' (" ") (" ") (" ") (" ")
 post `memhold' ("Issuer \(\times\) Cohort FE") ("Yes") ("Yes") ("Yes")
-post `memhold' ("Year FE") ("Yes") ("Yes") ("Yes")
+post `memhold' ("Cohort \(\times\) Year FE") ("Yes") ("Yes") ("Yes")
 post `memhold' ("Clustering") ("CSA \& Year") ("CSA \& Year") ("CSA \& Year")
 
 postclose `memhold'
@@ -584,9 +590,10 @@ encode issuer, gen(issuer_code)
 /* Column 1 */
 
 // Column 1: Require M&A is for reasons unlikely to be related to local economic conditions
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 if (year_to_merger>=-4&year_to_merger<=7) & reasonma_endo_possible=="False", ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) replace label keep(treatedXpost) `outputoptions' ctitle("Underwriting","Spread (bps.)") ///
 addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA $\times$ Year")
@@ -594,14 +601,17 @@ addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$
 /* Column 2 */
 
 // Column 2: Require M&A is for reasons unlikely to be related to local economic conditions, and also not due to financial distress
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 if (year_to_merger>=-4&year_to_merger<=7) & reasonma_endo_possible=="False"&reasonma_fin_stress=="False", ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label keep(treatedXpost) `outputoptions' ctitle("Underwriting","Spread (bps.)") ///
 addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA $\times$ Year")
 
-/* Figure: Using cases where affected CSA makes up less than 10% of underwriter's business */
+
+
+/* Figure: Using cases where M&A is for reasons unlikely to be related to local economic conditions */
 
 set scheme s1color
 
@@ -616,11 +626,12 @@ gen treatedXpost4 = treated==1&year_to_merger==4
 
 preserve
 
-reghdfe gross_spread treated post ///
+reghdfe gross_spread ///
 treatedXpostm2 treatedXpostm3 treatedXpostm4 ///
 treatedXpost0 treatedXpost1 treatedXpost2 treatedXpost3 treatedXpost4 ///
 if reasonma_endo_possible=="False" & (year_to_merger>=-4&year_to_merger<=4), ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 forvalues x = 2/4 {
 local bm`x'= _b[treatedXpostm`x']
@@ -698,9 +709,10 @@ encode issuer, gen(issuer_code)
 /* Column 1 */
 
 // Column 1: Require weight less than 10% for both acquiror and target firms
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 if max_acquiror_weight<0.1&max_target_weight<0.1 & (year_to_merger>=-4&year_to_merger<=7), ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) replace label keep(treatedXpost) `outputoptions' ctitle("Underwriting","Spread (bps.)") ///
 addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA $\times$ Year")
@@ -708,18 +720,20 @@ addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$
 /* Column 2 */
 
 // Column 2: Require weight less than 5% for both acquiror and target firms
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 if max_acquiror_weight<0.05&max_target_weight<0.05 & (year_to_merger>=-4&year_to_merger<=7), ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 outreg2 using  "`outfile'", tex(fragment) append label keep(treatedXpost) `outputoptions' ctitle("Underwriting","Spread (bps.)") ///
 addstat("Adjusted R-squared", e(r2_a)) addtext("Year FE", "Yes","Issuer $\times$ Cohort FE", "Yes","Clustering","CSA $\times$ Year")
 
 /*--- Number: Effects on gross spread ---*/
 
-reghdfe gross_spread_inbp treated post treatedXpost ///
+reghdfe gross_spread_inbp treatedXpost ///
 if max_acquiror_weight<0.05&max_target_weight<0.05 & (year_to_merger>=-4&year_to_merger<=4), ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 local spread_effects_bothweight_lt5 = _b[treatedXpost]
 local spread_effects_bothweight_lt5 : display %-9.1f `spread_effects_bothweight_lt5'
@@ -748,11 +762,12 @@ gen treatedXpost4 = treated==1&year_to_merger==4
 
 preserve
 
-reghdfe gross_spread treated post ///
+reghdfe gross_spread ///
 treatedXpostm2 treatedXpostm3 treatedXpostm4 ///
 treatedXpost0 treatedXpost1 treatedXpost2 treatedXpost3 treatedXpost4 ///
 if max_acquiror_weight<0.1&max_target_weight<0.1 & (year_to_merger>=-4&year_to_merger<=4), ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 forvalues x = 2/4 {
 local bm`x'= _b[treatedXpostm`x']
@@ -815,11 +830,12 @@ restore
 
 preserve
 
-reghdfe gross_spread treated post ///
+reghdfe gross_spread ///
 treatedXpostm2 treatedXpostm3 treatedXpostm4 ///
 treatedXpost0 treatedXpost1 treatedXpost2 treatedXpost3 treatedXpost4 ///
 if max_acquiror_weight<0.05&max_target_weight<0.05 & (year_to_merger>=-4&year_to_merger<=4), ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 forvalues x = 2/4 {
 local bm`x'= _b[treatedXpostm`x']
@@ -884,11 +900,12 @@ restore
 
 preserve
 
-reghdfe gross_spread treated post ///
+reghdfe gross_spread ///
 treatedXpostm2 treatedXpostm3 treatedXpostm4 ///
 treatedXpost0 treatedXpost1 treatedXpost2 treatedXpost3 treatedXpost4 ///
 if max_acquiror_weight<0.03&max_target_weight<0.03 & (year_to_merger>=-4&year_to_merger<=4), ///
-absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa calendar_year) cluster(csacode calendar_year)
+absorb(i.issuer_code##i.issuer_type##i.episode_start_year##i.treated_csa i.episode_start_year##i.treated_csa##i.calendar_year) ///
+cluster(csacode calendar_year) noconstant
 
 forvalues x = 2/4 {
 local bm`x'= _b[treatedXpostm`x']
